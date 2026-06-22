@@ -1,0 +1,51 @@
+# Go: собранные файлы и тесты
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+
+# Локальные переменные окружения и секреты
+
+.env
+.env.*
+!.env.example
+config/local.yaml
+
+# RSA-ключи JWT
+
+internal/security/keys/private.pem
+internal/security/keys/public.pem
+
+# Локальные логи
+
+*.log
+logs/
+
+# Docker override-файлы
+
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# IDE
+
+.idea/
+.vscode/
+*.iml
+
+# ОС
+
+.DS_Store
+Thumbs.db
+
+# Временные файлы
+
+tmp/
+temp/
+*.tmp
+*.swp
+*~
