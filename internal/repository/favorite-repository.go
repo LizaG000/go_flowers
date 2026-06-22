@@ -13,7 +13,7 @@ import (
 
 type FavoriteRepository interface {
 	Create(data entity.CreateFavorite) (entity.Favorite, error)
-	GetByUserID(userID uuid.UUID) (entity.FavoriteFlower, error)
+	GetByUserID(userID uuid.UUID) ([]entity.FavoriteFlower, error)
 	Delete(favoriteID uuid.UUID) (entity.Favorite, error)
 }
 
@@ -73,53 +73,59 @@ func (repository *favoriteRepository) Create(
 
 func (repository *favoriteRepository) GetByUserID(
 	userID uuid.UUID,
-) (entity.FavoriteFlower, error) {
+) ([]entity.FavoriteFlower, error) {
 	const query = `
-	SELECT
-		favorites.id,
-		favorites.user_id,
-		favorites.flower_id,
-		flowers.title,
-		flowers.description,
-		flowers.price,
-		flowers.height,
-		flowers.count,
-		favorites.created_at,
-		favorites.updated_at
-	FROM favorites
-	JOIN flowers ON favorites.flower_id = flowers.id
-	WHERE favorites.user_id = $1
+		SELECT
+			favorites.id,
+			favorites.user_id,
+			favorites.flower_id,
+			flowers.title,
+			flowers.description,
+			flowers.price,
+			flowers.height,
+			flowers.count,
+			favorites.created_at,
+			favorites.updated_at
+		FROM favorites
+		JOIN flowers ON favorites.flower_id = flowers.id
+		WHERE favorites.user_id = $1
 	`
 
-	var favorite entity.FavoriteFlower
-
-	err := repository.db.QueryRow(
-		query,
-		userID,
-	).Scan(
-		&favorite.ID,
-		&favorite.UserID,
-		&favorite.FlowerID,
-		&favorite.Title,
-		&favorite.Description,
-		&favorite.Price,
-		&favorite.Height,
-		&favorite.Count,
-		&favorite.CreatedAt,
-		&favorite.UpdatedAt,
-	)
-
+	rows, err := repository.db.Query(query, userID)
 	if err != nil {
-		var pqErr *pq.Error
+		return nil, fmt.Errorf("postgres get favorites: %w", err)
+	}
+	defer rows.Close()
 
-		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
-			return entity.FavoriteFlower{}, storage.ErrFavoriteExists
+	favorites := make([]entity.FavoriteFlower, 0)
+
+	for rows.Next() {
+		var favorite entity.FavoriteFlower
+
+		err := rows.Scan(
+			&favorite.ID,
+			&favorite.UserID,
+			&favorite.FlowerID,
+			&favorite.Title,
+			&favorite.Description,
+			&favorite.Price,
+			&favorite.Height,
+			&favorite.Count,
+			&favorite.CreatedAt,
+			&favorite.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("postgres scan favorite: %w", err)
 		}
 
-		return entity.FavoriteFlower{}, fmt.Errorf("postgres create favorite in transaction: %w", err)
+		favorites = append(favorites, favorite)
 	}
 
-	return favorite, nil
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("postgres iterate favorites: %w", err)
+	}
+
+	return favorites, nil
 }
 
 func (repository *favoriteRepository) Delete(

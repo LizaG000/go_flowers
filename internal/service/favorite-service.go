@@ -8,7 +8,7 @@ import (
 
 type FavoriteService interface {
 	Create(data entity.CreateFavorite) (entity.Favorite, error)
-	GetByUserID(userID uuid.UUID) (entity.FavoriteFlower, error)
+	GetByUserID(userID uuid.UUID) ([]entity.FavoriteFlower, error)
 	Delete(favoriteID uuid.UUID) (entity.Favorite, error)
 }
 
@@ -26,7 +26,7 @@ func (service *favoriteService) Create(data entity.CreateFavorite) (entity.Favor
 	return service.repository.Create(data)
 }
 
-func (service *favoriteService) GetByUserID(userID uuid.UUID) (entity.FavoriteFlower, error) {
+func (service *favoriteService) GetByUserID(userID uuid.UUID) ([]entity.FavoriteFlower, error) {
 	return service.repository.GetByUserID(userID)
 }
 

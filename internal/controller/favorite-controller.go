@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/dto"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/service"
 	"github.com/gin-gonic/gin"
@@ -26,13 +27,43 @@ func NewFavoriteController(service service.FavoriteService) FavoriteController {
 }
 
 func (c *favoriteController) Create(ctx *gin.Context) {
-	var createFavorite entity.CreateFavorite
+	var createFavorite dto.RequestCreateFavorite
 
 	if err := ctx.ShouldBindJSON(&createFavorite); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "не удалось прочитать данные",
 		})
+		return
 	}
+
+	userIDValue, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "пользователь не авторизован",
+		})
+		return
+	}
+
+	userID, ok := userIDValue.(uuid.UUID)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "не удалось получить id пользователя",
+		})
+		return
+	}
+
+	favorite, err := c.service.Create(entity.CreateFavorite{
+		UserID:   userID,
+		FlowerID: createFavorite.FlowerID,
+	})
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, favorite)
 }
 
 func (c *favoriteController) GetByUserID(ctx *gin.Context) {
@@ -64,7 +95,7 @@ func (c *favoriteController) GetByUserID(ctx *gin.Context) {
 }
 
 func (c *favoriteController) Delete(ctx *gin.Context) {
-	favoriteIDRaw := ctx.Query("userID")
+	favoriteIDRaw := ctx.Query("favoriteID")
 
 	if favoriteIDRaw == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{

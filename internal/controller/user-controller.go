@@ -24,15 +24,21 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (c *userController) Get(ctx *gin.Context) {
-	userIDRaw := ctx.Query("userID")
-
-	if userIDRaw == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "id пользователя обязателен",
+	userIDValue, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "пользователь не авторизован",
 		})
 		return
 	}
-	userID, err := uuid.Parse(userIDRaw)
+
+	userID, ok := userIDValue.(uuid.UUID)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "не удалось получить id пользователя",
+		})
+		return
+	}
 	user, err := c.userService.GetByID(userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

@@ -49,6 +49,7 @@ func main() {
 	favoriteController := controller.NewFavoriteController(favoriteService)
 
 	server := router.New(
+		cfg.Auth,
 		flowerController,
 		userController,
 		loginController,
