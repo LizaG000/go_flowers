@@ -6,21 +6,16 @@ import (
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/config"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/controller"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middlware"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/router"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/service"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage/postgres"
 )
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
-)
-
 func main() {
 	cfg := config.MustLoad()
 
-	log := setupLogger(cfg.Env)
+	log := middlware.SetupLogger(cfg.Env)
 
 	storage, err := postgres.New(cfg.Database)
 	if err != nil {
@@ -58,30 +53,4 @@ func main() {
 		log.Error("failed to start HTTP server", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-}
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-	default:
-
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	}
-
-	return log
 }
