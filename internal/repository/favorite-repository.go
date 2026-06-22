@@ -12,7 +12,7 @@ import (
 )
 
 type FavoriteRepository interface {
-	CreateTx(tx *sql.Tx, data entity.CreateFavorite) (entity.Favorite, error)
+	Create(data entity.CreateFavorite) (entity.Favorite, error)
 	GetByUserID(userID uuid.UUID) (entity.FavoriteFlower, error)
 	Delete(favoriteID uuid.UUID) (entity.Favorite, error)
 }
@@ -27,8 +27,7 @@ func NewFavoriteREpository(db *sql.DB) FavoriteRepository {
 	}
 }
 
-func (repository *favoriteRepository) CreateTx(
-	tx *sql.Tx,
+func (repository *favoriteRepository) Create(
 	data entity.CreateFavorite,
 ) (entity.Favorite, error) {
 	const query = `
@@ -47,7 +46,7 @@ func (repository *favoriteRepository) CreateTx(
 
 	var favorite entity.Favorite
 
-	err := tx.QueryRow(
+	err := repository.db.QueryRow(
 		query,
 		data.UserID,
 		data.FlowerID,
