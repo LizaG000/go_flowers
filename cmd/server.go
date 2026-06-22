@@ -7,6 +7,7 @@ import (
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/config"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/controller"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middlware"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/repository"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/router"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/service"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage/postgres"
@@ -32,9 +33,9 @@ func main() {
 
 	log.Debug("debug messages are enabled")
 
-	flowerRepository := postgres.NewFlowerRepository(storage.DB)
-	userRepository := postgres.NewUserRepository(storage.DB)
-	passwordRepository := postgres.NewPasswordRepository(storage.DB)
+	flowerRepository := repository.NewFlowerRepository(storage.DB)
+	userRepository := repository.NewUserRepository(storage.DB)
+	passwordRepository := repository.NewPasswordRepository(storage.DB)
 
 	flowerService := service.NewFlowerService(flowerRepository)
 	userService := service.NewUserService(userRepository)
