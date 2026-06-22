@@ -20,7 +20,7 @@ type CreateFavorite struct {
 }
 
 type FavoriteFlower struct {
-	ID          uuid.UUID `json:"favorite_id" db:"favorite_id"`
+	ID          uuid.UUID `json:"id" db:"id"`
 	UserID      uuid.UUID `json:"user_id" db:"user_id"`
 	FlowerID    uuid.UUID `json:"flower_id" db:"flower_id"`
 	Title       string    `json:"title" db:"title"`
