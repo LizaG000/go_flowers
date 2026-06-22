@@ -13,6 +13,7 @@ import (
 type FavoriteController interface {
 	Create(ctx *gin.Context)
 	GetByUserID(ctx *gin.Context)
+	GetByUserIDOld(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 }
 
@@ -84,6 +85,34 @@ func (c *favoriteController) GetByUserID(ctx *gin.Context) {
 	}
 
 	favorites, err := c.service.GetByUserID(userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, favorites)
+}
+
+func (c *favoriteController) GetByUserIDOld(ctx *gin.Context) {
+	userIDValue, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "пользователь не авторизован",
+		})
+		return
+	}
+
+	userID, ok := userIDValue.(uuid.UUID)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "не удалось получить id пользователя",
+		})
+		return
+	}
+
+	favorites, err := c.service.GetByUserIDOld(userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

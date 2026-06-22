@@ -9,7 +9,7 @@ import (
 )
 
 func registerUserRoutes(
-	router *gin.Engine,
+	router *gin.RouterGroup,
 	userController controller.UserController,
 	auth config.Auth,
 ) {

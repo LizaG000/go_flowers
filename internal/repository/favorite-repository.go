@@ -14,6 +14,7 @@ import (
 type FavoriteRepository interface {
 	Create(data entity.CreateFavorite) (entity.Favorite, error)
 	GetByUserID(userID uuid.UUID) ([]entity.FavoriteFlower, error)
+	GetByUserIDOld(userID uuid.UUID) ([]entity.Favorite, error)
 	Delete(favoriteID uuid.UUID) (entity.Favorite, error)
 }
 
@@ -111,6 +112,52 @@ func (repository *favoriteRepository) GetByUserID(
 			&favorite.Price,
 			&favorite.Height,
 			&favorite.Count,
+			&favorite.CreatedAt,
+			&favorite.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("postgres scan favorite: %w", err)
+		}
+
+		favorites = append(favorites, favorite)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("postgres iterate favorites: %w", err)
+	}
+
+	return favorites, nil
+}
+
+func (repository *favoriteRepository) GetByUserIDOld(
+	userID uuid.UUID,
+) ([]entity.Favorite, error) {
+	const query = `
+		SELECT
+			id,
+			user_id,
+			flower_id,
+			created_at,
+			updated_at
+		FROM favorites
+		WHERE favorites.user_id = $1
+	`
+
+	rows, err := repository.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("postgres get favorites: %w", err)
+	}
+	defer rows.Close()
+
+	favorites := make([]entity.Favorite, 0)
+
+	for rows.Next() {
+		var favorite entity.Favorite
+
+		err := rows.Scan(
+			&favorite.ID,
+			&favorite.UserID,
+			&favorite.FlowerID,
 			&favorite.CreatedAt,
 			&favorite.UpdatedAt,
 		)

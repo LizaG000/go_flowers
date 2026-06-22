@@ -7,7 +7,7 @@ import (
 )
 
 func registerLoginRoutes(
-	router *gin.Engine,
+	router *gin.RouterGroup,
 	loginController controller.LoginController,
 ) {
 	auth := router.Group("/auth")

@@ -7,7 +7,7 @@ import (
 )
 
 func registerFlowerRoutes(
-	router *gin.Engine,
+	router *gin.RouterGroup,
 	flowerController controller.FlowerController,
 ) {
 	flowers := router.Group("/flowers")

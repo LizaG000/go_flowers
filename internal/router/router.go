@@ -21,11 +21,12 @@ func New(
 		gin.Recovery(),
 		middleware.RequestLogger(),
 	)
+	api := server.Group("/api")
 
-	registerFlowerRoutes(server, flowerController)
-	registerUserRoutes(server, userController, auth)
-	registerLoginRoutes(server, loginController)
-	registerFavoriteRoutes(server, favoriteController, auth)
+	registerFlowerRoutes(api, flowerController)
+	registerUserRoutes(api, userController, auth)
+	registerLoginRoutes(api, loginController)
+	registerFavoriteRoutes(api, favoriteController, auth)
 
 	return server
 }

@@ -8,15 +8,20 @@ import (
 )
 
 func registerFavoriteRoutes(
-	router *gin.Engine,
+	router *gin.RouterGroup,
 	favoriteController controller.FavoriteController,
 	auth config.Auth,
 ) {
+	favorites_v1 := router.Group("/v1/favorites")
+	favorites_v1.Use(middleware.Auth(auth.PublicKeyPath))
+	favorites_v1.GET("", favoriteController.GetByUserIDOld)
+
+	favorites_v2 := router.Group("/v2/favorites")
+	favorites_v2.Use(middleware.Auth(auth.PublicKeyPath))
+	favorites_v2.GET("", favoriteController.GetByUserID)
+
 	favorites := router.Group("/favorites")
-
 	favorites.Use(middleware.Auth(auth.PublicKeyPath))
-
 	favorites.POST("", favoriteController.Create)
-	favorites.GET("", favoriteController.GetByUserID)
 	favorites.DELETE("", favoriteController.Delete)
 }
