@@ -6,7 +6,7 @@ import (
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/config"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/controller"
-	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middlware"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middleware"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/repository"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/router"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/service"
@@ -16,7 +16,7 @@ import (
 func main() {
 	cfg := config.MustLoad()
 
-	log := middlware.SetupLogger(cfg.Env)
+	log := middleware.SetupLogger(cfg.Env)
 
 	storage, err := postgres.New(cfg.Database)
 	if err != nil {

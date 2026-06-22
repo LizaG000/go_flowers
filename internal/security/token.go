@@ -52,3 +52,44 @@ func GenerateToken(
 
 	return tokenString, nil
 }
+
+func ParseToken(
+	tokenString string,
+	publicKeyPath string,
+) (*TokenClaims, error) {
+	publicKeyBytes, err := os.ReadFile(publicKeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("read public key: %w", err)
+	}
+
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("parse public key: %w", err)
+	}
+
+	claims := &TokenClaims{}
+
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		claims,
+		func(token *jwt.Token) (interface{}, error) {
+			if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
+				return nil, fmt.Errorf(
+					"unexpected signing method: %s",
+					token.Method.Alg(),
+				)
+			}
+
+			return publicKey, nil
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("parse token: %w", err)
+	}
+
+	if !token.Valid {
+		return nil, fmt.Errorf("token is invalid")
+	}
+
+	return claims, nil
+}
