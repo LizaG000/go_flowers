@@ -42,15 +42,11 @@ func main() {
 	passwordRepository := postgres.NewPasswordRepository(storage.DB)
 
 	flowerService := service.NewFlowerService(flowerRepository)
-	userService := service.NewUserService(
-		storage.DB,
-		userRepository,
-		passwordRepository,
-	)
-	loginService := service.NewLoginService(userRepository, passwordRepository, cfg.Auth)
+	userService := service.NewUserService(userRepository)
+	loginService := service.NewLoginService(storage.DB, userRepository, passwordRepository, cfg.Auth)
 
 	flowerController := controller.NewFlowerController(flowerService)
-	userController := controller.NewUserController(userService, loginService)
+	userController := controller.NewUserController(userService)
 	loginController := controller.NewLoginController(loginService)
 
 	server := router.New(
