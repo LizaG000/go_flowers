@@ -8,6 +8,7 @@ import (
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type UserRepository interface {
@@ -69,10 +70,13 @@ func (repository *userRepository) CreateTx(
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-	if errors.Is(err, sql.ErrNoRows) {
-		return entity.User{}, storage.ErrUserAlreadyExists
-	}
 	if err != nil {
+		var pqErr *pq.Error
+
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			return entity.User{}, storage.ErrUserAlreadyExists
+		}
+
 		return entity.User{}, fmt.Errorf("postgres create user in transaction: %w", err)
 	}
 
