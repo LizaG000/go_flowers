@@ -36,19 +36,23 @@ func main() {
 	flowerRepository := repository.NewFlowerRepository(storage.DB)
 	userRepository := repository.NewUserRepository(storage.DB)
 	passwordRepository := repository.NewPasswordRepository(storage.DB)
+	favoriteRepository := repository.NewFavoriteREpository(storage.DB)
 
 	flowerService := service.NewFlowerService(flowerRepository)
 	userService := service.NewUserService(userRepository)
 	loginService := service.NewLoginService(storage.DB, userRepository, passwordRepository, cfg.Auth)
+	favoriteService := service.NewFavoriteService(favoriteRepository)
 
 	flowerController := controller.NewFlowerController(flowerService)
 	userController := controller.NewUserController(userService)
 	loginController := controller.NewLoginController(loginService)
+	favoriteController := controller.NewFavoriteController(favoriteService)
 
 	server := router.New(
 		flowerController,
 		userController,
 		loginController,
+		favoriteController,
 	)
 	if err := server.Run(cfg.HTTPServer.Address); err != nil {
 		log.Error("failed to start HTTP server", slog.String("error", err.Error()))
