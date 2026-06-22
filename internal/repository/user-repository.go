@@ -2,9 +2,11 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage"
 	"github.com/google/uuid"
 )
 
@@ -67,6 +69,9 @@ func (repository *userRepository) CreateTx(
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return entity.User{}, storage.ErrUserAlreadyExists
+	}
 	if err != nil {
 		return entity.User{}, fmt.Errorf("postgres create user in transaction: %w", err)
 	}
@@ -102,7 +107,9 @@ func (repository *userRepository) GetByID(userID uuid.UUID) (entity.User, error)
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-
+	if errors.Is(err, sql.ErrNoRows) {
+		return entity.User{}, storage.ErrUserNotFound
+	}
 	if err != nil {
 		return entity.User{}, fmt.Errorf("postgres get user: %w", err)
 	}
@@ -138,7 +145,9 @@ func (repository *userRepository) GetByEmail(email string) (entity.User, error) 
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-
+	if errors.Is(err, sql.ErrNoRows) {
+		return entity.User{}, storage.ErrUserNotFound
+	}
 	if err != nil {
 		return entity.User{}, fmt.Errorf("postgres get user: %w", err)
 	}

@@ -2,9 +2,11 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage"
 	"github.com/google/uuid"
 )
 
@@ -69,7 +71,9 @@ func (repository *passwordRepository) Get(userID uuid.UUID) (entity.Password, er
 		&password.CreatedAt,
 		&password.UpdatedAt,
 	)
-
+	if errors.Is(err, sql.ErrNoRows) {
+		return entity.Password{}, storage.ErrPasswordNotFound
+	}
 	if err != nil {
 		return entity.Password{}, fmt.Errorf("postgres get password: %w", err)
 	}

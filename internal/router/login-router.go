@@ -12,6 +12,6 @@ func registerLoginRoutes(
 ) {
 	auth := router.Group("/auth")
 
-	auth.GET("/login", loginController.Login)
+	auth.POST("/login", loginController.Login)
 	auth.POST("/registration", loginController.Registration)
 }

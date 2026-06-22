@@ -2,9 +2,11 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage"
 	"github.com/google/uuid"
 )
 
@@ -168,6 +170,10 @@ func (repository *flowerRepository) Update(
 		&flower.CreatedAt,
 		&flower.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return entity.Flower{}, storage.ErrFlowerNotFound
+	}
+
 	if err != nil {
 		return entity.Flower{}, fmt.Errorf("postgres update flower: %w", err)
 	}
@@ -204,8 +210,12 @@ func (repository *flowerRepository) Delete(
 		&flower.CreatedAt,
 		&flower.UpdatedAt,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return entity.Flower{}, storage.ErrFlowerNotFound
+	}
+
 	if err != nil {
-		return entity.Flower{}, fmt.Errorf("postgres delete flower: %w", err)
+		return entity.Flower{}, fmt.Errorf("postgres update flower: %w", err)
 	}
 
 	return flower, nil

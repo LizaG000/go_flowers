@@ -3,6 +3,13 @@ package storage
 import "errors"
 
 var (
-	ErrURLNotFound = errors.New("url not found")
-	ErrURLExists   = errors.New("url exists")
+	ErrFlowerNotFound = errors.New("flower not found")
+
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
+
+	ErrPasswordNotFound = errors.New("password not found")
+
+	ErrFavoriteNotFound = errors.New("favorite not found")
+	ErrFavoriteExists   = errors.New("flower already in favorites")
 )
