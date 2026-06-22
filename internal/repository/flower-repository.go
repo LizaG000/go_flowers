@@ -215,7 +215,7 @@ func (repository *flowerRepository) Delete(
 	}
 
 	if err != nil {
-		return entity.Flower{}, fmt.Errorf("postgres update flower: %w", err)
+		return entity.Flower{}, fmt.Errorf("postgres delete flower: %w", err)
 	}
 
 	return flower, nil
