@@ -66,7 +66,13 @@ func (c *flowerController) GetAll(ctx *gin.Context) {
 		})
 		return
 	}
-	flowersPagination := service.Paginate(flowers, limit, offset)
+	flowersPagination, err := service.Paginate(flowers, limit, offset)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	ctx.JSON(http.StatusOK, flowersPagination)
 }
