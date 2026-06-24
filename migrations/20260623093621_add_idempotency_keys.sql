@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE idempotency_keys (
+CREATE TABLE idempotency (
     key UUID PRIMARY KEY,
     status VARCHAR(20) NOT NULL,
     response_code INT,
