@@ -1,6 +1,8 @@
 package router
 
 import (
+	"time"
+
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/config"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/controller"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middleware"
@@ -17,9 +19,15 @@ func New(
 ) *gin.Engine {
 	server := gin.New()
 
+	rateLimiter := middleware.NewRateLimiter(
+		2,
+		time.Minute,
+	)
+
 	server.Use(
 		gin.Recovery(),
 		middleware.RequestLogger(),
+		rateLimiter.RateLimiterMiddleware(),
 	)
 	api := server.Group("/api")
 
