@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/dto"
 )
 
@@ -8,7 +10,7 @@ func Paginate[T any](
 	items []T,
 	limit int,
 	offset int,
-) dto.Pagination[T] {
+) (dto.Pagination[T], error) {
 	var pagination dto.Pagination[T]
 
 	pagination.Total = len(items)
@@ -17,7 +19,7 @@ func Paginate[T any](
 
 	pagination.Offset = offset
 
-	if (offset-1)*limit < pagination.Total {
+	if (offset)*limit < pagination.Total {
 		pagination.HasNext = true
 	} else {
 		pagination.HasNext = false
@@ -28,7 +30,20 @@ func Paginate[T any](
 	} else {
 		pagination.HasPrevious = false
 	}
+	start := (offset - 1) * limit
 
-	pagination.Items = items[(offset-1)*limit : (offset)*limit]
-	return pagination
+	end := offset * limit
+	if end > pagination.Total {
+		end = pagination.Total
+	}
+	if start >= pagination.Total {
+		return dto.Pagination[T]{}, fmt.Errorf(
+			"страница %d не существует: всего элементов %d",
+			offset,
+			pagination.Total,
+		)
+	}
+
+	pagination.Items = items[start:end]
+	return pagination, nil
 }

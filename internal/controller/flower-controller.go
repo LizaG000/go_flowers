@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/dto"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
@@ -32,11 +33,32 @@ func NewFlowerController(service service.FlowerService) FlowerController {
 // @Description Возвращает все цветы, доступные в каталоге.
 // @Tags flowers
 // @Produce json
+// @Param limit query int false "Количество элементов на странице" default(10) minimum(1)
+// @Param offset query int false "Номер страницы" default(1) minimum(1)
 // @Success 200 {array} entity.Flower
 // @Failure 429 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /flowers [get]
 func (c *flowerController) GetAll(ctx *gin.Context) {
+	limitRaw := ctx.DefaultQuery("limit", "10")
+	offsetRaw := ctx.DefaultQuery("offset", "1")
+
+	limit, err := strconv.Atoi(limitRaw)
+	if err != nil || limit < 1 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "limit должен быть положительным числом",
+		})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetRaw)
+	if err != nil || offset < 1 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "offset должен быть положительным числом",
+		})
+		return
+	}
+
 	flowers, err := c.service.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -44,8 +66,9 @@ func (c *flowerController) GetAll(ctx *gin.Context) {
 		})
 		return
 	}
+	flowersPagination := service.Paginate(flowers, limit, offset)
 
-	ctx.JSON(http.StatusOK, flowers)
+	ctx.JSON(http.StatusOK, flowersPagination)
 }
 
 // Create godoc

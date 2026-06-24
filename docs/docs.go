@@ -332,16 +332,57 @@ const docTemplate = `{
                     "flowers"
                 ],
                 "summary": "Получить список цветов",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Количество элементов на странице",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
+                            "type": "object",
+                            "properties": {
                             "items": {
+                                "type": "array",
+                                "items": {
                                 "$ref": "#/definitions/entity.Flower"
+                                }
+                            },
+                            "limit": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            },
+                            "from": {
+                                "type": "integer"
+                            },
+                            "to": {
+                                "type": "integer"
+                            },
+                            "has_next": {
+                                "type": "boolean"
+                            },
+                            "has_previous": {
+                                "type": "boolean"
+                            }
                             }
                         }
-                    },
+                        },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {

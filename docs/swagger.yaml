@@ -395,15 +395,49 @@ paths:
       - flowers
     get:
       description: Возвращает все цветы, доступные в каталоге.
+      parameters:
+      - default: 10
+        description: Количество элементов на странице
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/entity.Flower'
-            type: array
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/definitions/entity.Flower'
+          limit:
+            type: integer
+            example: 10
+          total:
+            type: integer
+            example: 25
+          from:
+            type: integer
+            example: 0
+          to:
+            type: integer
+            example: 10
+          has_next:
+            type: boolean
+            example: true
+          has_previous:
+            type: boolean
+            example: false
         "429":
           description: Too Many Requests
           schema:
