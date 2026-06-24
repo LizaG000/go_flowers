@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -13,8 +14,7 @@ type UserController interface {
 }
 
 type userController struct {
-	userService  service.UserService
-	loginService service.LoginService
+	userService service.UserService
 }
 
 func NewUserController(userService service.UserService) UserController {
@@ -23,6 +23,17 @@ func NewUserController(userService service.UserService) UserController {
 	}
 }
 
+// Get godoc
+// @Summary Получить профиль текущего пользователя
+// @Description Возвращает данные пользователя, определённого по JWT-токену.
+// @Tags users
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} entity.User
+// @Failure 401 {object} map[string]string
+// @Failure 429 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /users [get]
 func (c *userController) Get(ctx *gin.Context) {
 	userIDValue, exists := ctx.Get("user_id")
 	if !exists {
@@ -39,6 +50,7 @@ func (c *userController) Get(ctx *gin.Context) {
 		})
 		return
 	}
+
 	user, err := c.userService.GetByID(userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -47,5 +59,5 @@ func (c *userController) Get(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, user)
+	ctx.JSON(http.StatusOK, user)
 }

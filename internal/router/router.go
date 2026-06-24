@@ -8,6 +8,8 @@ import (
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middleware"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func New(
@@ -20,7 +22,7 @@ func New(
 	server := gin.New()
 
 	rateLimiter := middleware.NewRateLimiter(
-		2,
+		12,
 		time.Minute,
 	)
 
@@ -29,6 +31,12 @@ func New(
 		middleware.RequestLogger(),
 		rateLimiter.RateLimiterMiddleware(),
 	)
+
+	server.GET(
+		"/swagger/*any",
+		ginSwagger.WrapHandler(swaggerFiles.Handler),
+	)
+
 	api := server.Group("/api")
 
 	registerFlowerRoutes(api, flowerController)

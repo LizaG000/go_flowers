@@ -34,6 +34,24 @@ func NewFavoriteController(favoriteService service.FavoriteService, idempotencyS
 		idempotencyService: idempotencyService,
 	}
 }
+
+// Create godoc
+// @Summary Добавить цветок в избранное
+// @Description Добавляет цветок в избранное текущего авторизованного пользователя. Для повторной безопасной отправки запроса требуется Idempotency-Key.
+// @Tags favorites
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "JWT токен в формате Bearer <token>"
+// @Param Idempotency-Key header string true "UUID ключ идемпотентности"
+// @Param favorite body dto.RequestCreateFavorite true "Данные избранного"
+// @Success 201 {object} entity.Favorite
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 409 {object} map[string]string
+// @Failure 429 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /favorites [post]
 func (c *favoriteController) Create(ctx *gin.Context) {
 	body, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
@@ -148,6 +166,17 @@ func (c *favoriteController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, favorite)
 }
 
+// GetByUserID godoc
+// @Summary Получить избранные цветы
+// @Description Возвращает список избранных цветов текущего авторизованного пользователя.
+// @Tags favorites
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} entity.FavoriteFlower
+// @Failure 401 {object} map[string]string
+// @Failure 429 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /v2/favorites [get]
 func (c *favoriteController) GetByUserID(ctx *gin.Context) {
 	userIDValue, exists := ctx.Get("user_id")
 	if !exists {
@@ -176,6 +205,17 @@ func (c *favoriteController) GetByUserID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, favorites)
 }
 
+// GetByUserIDOld godoc
+// @Summary Получить избранные цветы — версия 1
+// @Description Устаревшая версия получения избранных цветов текущего пользователя.
+// @Tags favorites
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} entity.Favorite
+// @Failure 401 {object} map[string]string
+// @Failure 429 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /v1/favorites [get]
 func (c *favoriteController) GetByUserIDOld(ctx *gin.Context) {
 	userIDValue, exists := ctx.Get("user_id")
 	if !exists {
@@ -204,6 +244,19 @@ func (c *favoriteController) GetByUserIDOld(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, favorites)
 }
 
+// Delete godoc
+// @Summary Удалить цветок из избранного
+// @Description Удаляет запись избранного по её идентификатору.
+// @Tags favorites
+// @Produce json
+// @Security BearerAuth
+// @Param favoriteID query string true "UUID записи избранного"
+// @Success 200 {object} entity.Favorite
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 429 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /favorites [delete]
 func (c *favoriteController) Delete(ctx *gin.Context) {
 	favoriteIDRaw := ctx.Query("favoriteID")
 

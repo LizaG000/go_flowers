@@ -1,0 +1,610 @@
+basePath: /api
+definitions:
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RequestCreateFavorite:
+    properties:
+      flowerID:
+        type: string
+    type: object
+  dto.RequestCreateUser:
+    properties:
+      birth_date:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      second_name:
+        type: string
+    type: object
+  dto.RequestUpdateFlower:
+    properties:
+      id:
+        type: string
+      update_data:
+        $ref: '#/definitions/entity.UpdateFlower'
+    type: object
+  entity.CreateFlower:
+    properties:
+      count:
+        type: integer
+      description:
+        type: string
+      height:
+        type: number
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  entity.DeleteFlower:
+    properties:
+      id:
+        type: string
+    type: object
+  entity.Favorite:
+    properties:
+      created_at:
+        type: string
+      flower_id:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.FavoriteFlower:
+    properties:
+      count:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      flower_id:
+        type: string
+      height:
+        type: number
+      id:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.Flower:
+    properties:
+      count:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      height:
+        type: number
+      id:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.UpdateFlower:
+    properties:
+      count:
+        type: integer
+      description:
+        type: string
+      height:
+        type: number
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  entity.User:
+    properties:
+      birth_date:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      second_name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API интернет-магазина цветов.
+  title: Flower Shop API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Выполняет авторизацию пользователя по email и паролю и возвращает
+        JWT-токен.
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT access token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Вход в аккаунт
+      tags:
+      - auth
+  /auth/registration:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт нового пользователя и возвращает JWT-токен для дальнейшей
+        работы с API.
+      parameters:
+      - description: Данные нового пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestCreateUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /favorites:
+    delete:
+      description: Удаляет запись избранного по её идентификатору.
+      parameters:
+      - description: UUID записи избранного
+        in: query
+        name: favoriteID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Favorite'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить цветок из избранного
+      tags:
+      - favorites
+    post:
+      consumes:
+      - application/json
+      description: Добавляет цветок в избранное текущего авторизованного пользователя.
+        Для повторной безопасной отправки запроса требуется Idempotency-Key.
+      parameters:
+      - description: JWT токен в формате Bearer <token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: UUID ключ идемпотентности
+        in: header
+        name: Idempotency-Key
+        required: true
+        type: string
+      - description: Данные избранного
+        in: body
+        name: favorite
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestCreateFavorite'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Favorite'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Добавить цветок в избранное
+      tags:
+      - favorites
+  /flowers:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет цветок из каталога по его идентификатору.
+      parameters:
+      - description: Идентификатор удаляемого цветка
+        in: body
+        name: flower
+        required: true
+        schema:
+          $ref: '#/definitions/entity.DeleteFlower'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Flower'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удалить цветок
+      tags:
+      - flowers
+    get:
+      description: Возвращает все цветы, доступные в каталоге.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Flower'
+            type: array
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить список цветов
+      tags:
+      - flowers
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый цветок в каталог магазина.
+      parameters:
+      - description: Данные нового цветка
+        in: body
+        name: flower
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CreateFlower'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Flower'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать цветок
+      tags:
+      - flowers
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные существующего цветка.
+      parameters:
+      - description: Новые данные цветка
+        in: body
+        name: flower
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestUpdateFlower'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Flower'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить цветок
+      tags:
+      - flowers
+  /users:
+    get:
+      description: Возвращает данные пользователя, определённого по JWT-токену.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить профиль текущего пользователя
+      tags:
+      - users
+  /v1/favorites:
+    get:
+      description: Устаревшая версия получения избранных цветов текущего пользователя.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Favorite'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить избранные цветы — версия 1
+      tags:
+      - favorites
+  /v2/favorites:
+    get:
+      description: Возвращает список избранных цветов текущего авторизованного пользователя.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.FavoriteFlower'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить избранные цветы
+      tags:
+      - favorites
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

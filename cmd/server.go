@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"os"
 
+	_ "gilab.com/pragmaticrewies/golang-gin-poc/docs"
+
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/config"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/controller"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/middleware"
@@ -13,6 +15,15 @@ import (
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage/postgres"
 )
 
+// @title Flower Shop API
+// @version 1.0
+// @description API интернет-магазина цветов.
+// @host localhost:8080
+// @BasePath /api
+// @schemes http
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	cfg := config.MustLoad()
 
