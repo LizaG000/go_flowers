@@ -46,6 +46,7 @@ func (service *flowerService) Create(data entity.CreateFlower) (entity.Flower, e
 }
 
 func (service *flowerService) GetAll() ([]entity.Flower, error) {
+
 	return service.repository.GetAll()
 }
 

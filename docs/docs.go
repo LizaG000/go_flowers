@@ -354,35 +354,12 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "properties": {
+                            "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                "$ref": "#/definitions/entity.Flower"
-                                }
-                            },
-                            "limit": {
-                                "type": "integer"
-                            },
-                            "total": {
-                                "type": "integer"
-                            },
-                            "from": {
-                                "type": "integer"
-                            },
-                            "to": {
-                                "type": "integer"
-                            },
-                            "has_next": {
-                                "type": "boolean"
-                            },
-                            "has_previous": {
-                                "type": "boolean"
-                            }
+                                "$ref": "#/definitions/dto.DictPagination"
                             }
                         }
-                        },
+                    },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
@@ -745,6 +722,33 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.DictPagination": {
+            "type": "object",
+            "properties": {
+                "has_next": {
+                    "type": "boolean"
+                },
+                "has_previous": {
+                    "type": "boolean"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.LoginRequest": {
             "type": "object",
             "required": [

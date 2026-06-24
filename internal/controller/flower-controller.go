@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/dto"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
@@ -35,13 +36,14 @@ func NewFlowerController(service service.FlowerService) FlowerController {
 // @Produce json
 // @Param limit query int false "Количество элементов на странице" default(10) minimum(1)
 // @Param offset query int false "Номер страницы" default(1) minimum(1)
-// @Success 200 {array} entity.Flower
+// @Success 200 {array} dto.DictPagination
 // @Failure 429 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /flowers [get]
 func (c *flowerController) GetAll(ctx *gin.Context) {
 	limitRaw := ctx.DefaultQuery("limit", "10")
 	offsetRaw := ctx.DefaultQuery("offset", "1")
+	fieldsRaw := ctx.Query("fields")
 
 	limit, err := strconv.Atoi(limitRaw)
 	if err != nil || limit < 1 {
@@ -55,6 +57,13 @@ func (c *flowerController) GetAll(ctx *gin.Context) {
 	if err != nil || offset < 1 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "offset должен быть положительным числом",
+		})
+		return
+	}
+
+	if fieldsRaw == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "параметр fields обязателен",
 		})
 		return
 	}
@@ -74,7 +83,48 @@ func (c *flowerController) GetAll(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, flowersPagination)
+	result := make([]map[string]any, 0, len(flowersPagination.Items))
+
+	for _, item := range flowersPagination.Items {
+		flower := make(map[string]any)
+
+		if strings.Contains(fieldsRaw, "updated_at") {
+			flower["updated_at"] = item.UpdatedAt
+		}
+		if strings.Contains(fieldsRaw, "created_at") {
+			flower["created_at"] = item.CreatedAt
+		}
+		if strings.Contains(fieldsRaw, "count") {
+			flower["count"] = item.Count
+		}
+		if strings.Contains(fieldsRaw, "height") {
+			flower["height"] = item.Height
+		}
+		if strings.Contains(fieldsRaw, "price") {
+			flower["price"] = item.Price
+		}
+		if strings.Contains(fieldsRaw, "description") {
+			flower["description"] = item.Description
+		}
+		if strings.Contains(fieldsRaw, "title") {
+			flower["title"] = item.Title
+		}
+		if strings.Contains(fieldsRaw, "id") {
+			flower["id"] = item.ID
+		}
+		result = append(result, flower)
+	}
+
+	response := dto.DictPagination{
+		Items:       result,
+		Limit:       flowersPagination.Limit,
+		Offset:      flowersPagination.Offset,
+		Total:       flowersPagination.Total,
+		HasNext:     flowersPagination.HasNext,
+		HasPrevious: flowersPagination.HasPrevious,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 // Create godoc
