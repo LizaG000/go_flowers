@@ -44,8 +44,8 @@ func (repository *idempotencyRepository) Create(data entity.CreateIdempotency) (
 		query,
 		data.Key,
 		data.Status,
-		data.ResponseBody,
 		data.ResponseCode,
+		data.ResponseBody,
 		data.PayloadHash,
 	).Scan(
 		&idempotency.Key,
@@ -75,7 +75,7 @@ func (repository *idempotencyRepository) Get(key uuid.UUID) (entity.Idempotency,
 			payload_hash,
 			created_at,
 			updated_at
-		FROM idempotency WHERE id = $1
+		FROM idempotency WHERE key = $1
 	`
 	var idempotency entity.Idempotency
 
@@ -96,7 +96,7 @@ func (repository *idempotencyRepository) Get(key uuid.UUID) (entity.Idempotency,
 		return entity.Idempotency{}, storage.ErrIdempotencyNotFound
 	}
 	if err != nil {
-		return entity.Idempotency{}, fmt.Errorf("postgres get user: %w", err)
+		return entity.Idempotency{}, fmt.Errorf("postgres get idempotency: %w", err)
 	}
 
 	return idempotency, nil

@@ -37,16 +37,18 @@ func main() {
 	userRepository := repository.NewUserRepository(storage.DB)
 	passwordRepository := repository.NewPasswordRepository(storage.DB)
 	favoriteRepository := repository.NewFavoriteREpository(storage.DB)
+	idempotencyRepository := repository.NewIdempotencyRepository(storage.DB)
 
 	flowerService := service.NewFlowerService(flowerRepository)
 	userService := service.NewUserService(userRepository)
 	loginService := service.NewLoginService(storage.DB, userRepository, passwordRepository, cfg.Auth)
 	favoriteService := service.NewFavoriteService(favoriteRepository)
+	idempotencyService := service.NewIdempotencyService(idempotencyRepository)
 
 	flowerController := controller.NewFlowerController(flowerService)
 	userController := controller.NewUserController(userService)
 	loginController := controller.NewLoginController(loginService)
-	favoriteController := controller.NewFavoriteController(favoriteService)
+	favoriteController := controller.NewFavoriteController(favoriteService, idempotencyService)
 
 	server := router.New(
 		cfg.Auth,
