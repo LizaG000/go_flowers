@@ -60,6 +60,7 @@ func main() {
 	userController := controller.NewUserController(userService)
 	loginController := controller.NewLoginController(loginService)
 	favoriteController := controller.NewFavoriteController(favoriteService, idempotencyService)
+	healthController := controller.NewHealthController(storage.DB)
 
 	server := router.New(
 		cfg.Auth,
@@ -67,6 +68,7 @@ func main() {
 		userController,
 		loginController,
 		favoriteController,
+		healthController,
 	)
 	if err := server.Run(cfg.HTTPServer.Address); err != nil {
 		log.Error("failed to start HTTP server", slog.String("error", err.Error()))

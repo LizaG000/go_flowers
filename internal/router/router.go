@@ -18,6 +18,7 @@ func New(
 	userController controller.UserController,
 	loginController controller.LoginController,
 	favoriteController controller.FavoriteController,
+	healthController controller.HealthController,
 ) *gin.Engine {
 	server := gin.New()
 
@@ -43,6 +44,6 @@ func New(
 	registerUserRoutes(api, userController, auth)
 	registerLoginRoutes(api, loginController)
 	registerFavoriteRoutes(api, favoriteController, auth)
-
+	registerHealthRoutes(api, healthController)
 	return server
 }

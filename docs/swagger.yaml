@@ -528,6 +528,28 @@ paths:
       summary: Обновить цветок
       tags:
       - flowers
+  /internal/health:
+    get:
+      description: Внутренняя конечная точка для проверки доступности приложения и
+        базы данных.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Проверка состояния сервиса
+      tags:
+      - internal
   /users:
     get:
       description: Возвращает данные пользователя, определённого по JWT-токену.
