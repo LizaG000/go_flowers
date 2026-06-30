@@ -23,6 +23,24 @@ services:
       RABBITMQ_PASSWORD: guest
     restart: unless-stopped
 
+  client:
+    build:
+      context: ..
+      dockerfile: deploy/client.Dockerfile
+    container_name: go_rabbit_client
+    depends_on:
+      - rabbitmq
+    environment:
+      CONFIG_PATH: /app/config/local.yaml
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+    volumes:
+    - ../config:/app/config
+    restart: "no"
+
   postgres:
     image: postgres:16-alpine
     container_name: go_postgres

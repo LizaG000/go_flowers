@@ -9,9 +9,9 @@ import (
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/dto"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/infra/storage"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/security"
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/service"
-	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

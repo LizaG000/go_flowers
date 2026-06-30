@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"gilab.com/pragmaticrewies/golang-gin-poc/internal/entity"
-	"gilab.com/pragmaticrewies/golang-gin-poc/internal/storage"
+	"gilab.com/pragmaticrewies/golang-gin-poc/internal/infra/storage"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
