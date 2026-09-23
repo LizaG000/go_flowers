@@ -534,8 +534,8 @@ Content-Type: application/json
 
 ```json
 {
-  "email": "elizaveta@example.com",
-  "password": "MyStrongPassword123"
+  "email": "testuser@example.com",
+  "password": "Test12345!"
 }
 ```
 

@@ -426,6 +426,11 @@ paths:
         minimum: 1
         name: offset
         type: integer
+      - description: "Список полей через запятую. Например: id,title,price"
+        in: query
+        name: fields
+        required: true
+        type: string
       produces:
       - application/json
       responses:

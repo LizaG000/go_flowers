@@ -36,6 +36,7 @@ func NewFlowerController(service service.FlowerService) FlowerController {
 // @Produce json
 // @Param limit query int false "Количество элементов на странице" default(10) minimum(1)
 // @Param offset query int false "Номер страницы" default(1) minimum(1)
+// @Param fields query string true "Поля, которые нужно вернуть. Например: id,title,price"
 // @Success 200 {array} dto.DictPagination
 // @Failure 429 {object} map[string]string
 // @Failure 500 {object} map[string]string

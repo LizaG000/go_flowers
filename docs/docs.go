@@ -348,6 +348,13 @@ const docTemplate = `{
                         "description": "Номер страницы",
                         "name": "offset",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Список полей через запятую. Например: id,title,price",
+                        "name": "fields",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {

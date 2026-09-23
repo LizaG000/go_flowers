@@ -345,7 +345,14 @@
                         "description": "Номер страницы",
                         "name": "offset",
                         "in": "query"
-                    }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Поля, которые нужно вернуть. Например: id,title,price",
+                        "name": "fields",
+                        "in": "query",
+                        "required": true
+                }
                 ],
                 "responses": {
                     "200": {
