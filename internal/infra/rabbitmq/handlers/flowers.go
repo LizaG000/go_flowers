@@ -39,20 +39,25 @@ func NewFlowerHandler(
 		log:                log,
 	}
 }
-
-func (h *FlowerHandler) Create(message amqp.Delivery) error {
+func (h *FlowerHandler) Create(message amqp.Delivery) (entity.Flower, error) {
 	var request dto.RabbitRequest
 
 	if err := json.Unmarshal(message.Body, &request); err != nil {
 		_ = message.Nack(false, false)
 
-		return fmt.Errorf("не удалось прочитать сообщение RabbitMQ: %w", err)
+		return entity.Flower{}, fmt.Errorf(
+			"не удалось прочитать сообщение RabbitMQ: %w",
+			err,
+		)
 	}
 
 	if request.Action != "create_flower" {
 		_ = message.Nack(false, false)
 
-		return fmt.Errorf("неподдерживаемое действие: %s", request.Action)
+		return entity.Flower{}, fmt.Errorf(
+			"неподдерживаемое действие: %s",
+			request.Action,
+		)
 	}
 
 	var createFlower entity.CreateFlower
@@ -60,7 +65,10 @@ func (h *FlowerHandler) Create(message amqp.Delivery) error {
 	if err := json.Unmarshal(request.Data, &createFlower); err != nil {
 		_ = message.Nack(false, false)
 
-		return fmt.Errorf("не удалось прочитать данные цветка: %w", err)
+		return entity.Flower{}, fmt.Errorf(
+			"не удалось прочитать данные цветка: %w",
+			err,
+		)
 	}
 
 	token := request.Auth
@@ -82,14 +90,20 @@ func (h *FlowerHandler) Create(message amqp.Delivery) error {
 	if err != nil {
 		_ = message.Nack(false, true)
 
-		return fmt.Errorf("не удалось создать цветок: %w", err)
+		return entity.Flower{}, fmt.Errorf(
+			"не удалось создать цветок: %w",
+			err,
+		)
 	}
 
 	flowerBytes, err := json.Marshal(createdFlower)
 	if err != nil {
 		_ = message.Nack(false, true)
 
-		return fmt.Errorf("не удалось сериализовать созданный цветок: %w", err)
+		return entity.Flower{}, fmt.Errorf(
+			"не удалось сериализовать созданный цветок: %w",
+			err,
+		)
 	}
 
 	response := dto.RabbitResponse{
@@ -102,11 +116,17 @@ func (h *FlowerHandler) Create(message amqp.Delivery) error {
 	if err := h.publisher.Publish(h.responseQueue, response); err != nil {
 		_ = message.Nack(false, true)
 
-		return fmt.Errorf("не удалось отправить ответ RabbitMQ: %w", err)
+		return entity.Flower{}, fmt.Errorf(
+			"не удалось отправить ответ RabbitMQ: %w",
+			err,
+		)
 	}
 
 	if err := message.Ack(false); err != nil {
-		return fmt.Errorf("не удалось подтвердить сообщение RabbitMQ: %w", err)
+		return entity.Flower{}, fmt.Errorf(
+			"не удалось подтвердить сообщение RabbitMQ: %w",
+			err,
+		)
 	}
 
 	h.log.Info(
@@ -117,5 +137,12 @@ func (h *FlowerHandler) Create(message amqp.Delivery) error {
 		"response_queue", h.responseQueue,
 	)
 
-	return nil
+	return createdFlower, nil
+}
+
+func (h *FlowerHandler) PublishResponse(response dto.RabbitResponse) error {
+	return h.publisher.Publish(
+		h.responseQueue,
+		response,
+	)
 }

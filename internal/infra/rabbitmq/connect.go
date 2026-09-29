@@ -33,7 +33,6 @@ func (rcl *RabbitClient) connect(isRec, reconnect bool) (*amqp.Connection, error
 		return rcl.sendConn, nil
 	}
 
-	// 🔥 ВСЕГДА ПРАВИЛЬНЫЙ DSN
 	c = fmt.Sprintf(
 		"amqp://%s:%s@%s:%s/",
 		rcl.config.User,

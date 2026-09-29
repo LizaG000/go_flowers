@@ -85,16 +85,18 @@ func main() {
 		cfg.RabbitMQ.ResponseQueue,
 		log,
 	)
-
 	if err := rabbit.Consume(
 		cfg.RabbitMQ.RequestQueue,
 		log,
 		flowerHandler,
+		idempotencyService,
+		cfg.Auth,
 	); err != nil {
 		log.Error(
 			"failed to start RabbitMQ consumer",
 			slog.String("error", err.Error()),
 		)
+
 		os.Exit(1)
 	}
 

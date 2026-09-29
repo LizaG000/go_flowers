@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router'
-import Registration from './pages/auth/registration.tsx'
+import Registration from './pages/auth/Registration.tsx'
 import Main from './pages/Main.tsx'
 import Login from './pages/auth/Login.tsx'
 

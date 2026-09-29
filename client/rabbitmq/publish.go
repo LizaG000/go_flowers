@@ -16,6 +16,7 @@ func (rcl *RabbitClient) Publish(
 	queueName string,
 	flower entity.CreateFlower,
 	authToken string,
+	idempotencyKey uuid.UUID,
 ) (uuid.UUID, error) {
 	queue, err := rcl.sendChan.QueueDeclare(
 		queueName,
@@ -47,7 +48,7 @@ func (rcl *RabbitClient) Publish(
 		Action:         "create_flower",
 		Data:           flowerBytes,
 		Auth:           authToken,
-		IdempotencyKey: uuid.New(),
+		IdempotencyKey: idempotencyKey,
 	}
 
 	body, err := json.Marshal(request)

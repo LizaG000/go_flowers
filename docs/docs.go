@@ -565,7 +565,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/internal/health": {
+        "/health": {
             "get": {
                 "description": "Внутренняя конечная точка для проверки доступности приложения и базы данных.",
                 "produces": [

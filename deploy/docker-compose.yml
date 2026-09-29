@@ -7,8 +7,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     environment:
       CONFIG_PATH: /app/config/local.yaml
       DB_HOST: postgres
@@ -29,7 +31,8 @@ services:
       dockerfile: deploy/client.Dockerfile
     container_name: go_rabbit_client
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     environment:
       CONFIG_PATH: /app/config/local.yaml
 
@@ -76,6 +79,11 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
 
 volumes:
